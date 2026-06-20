@@ -1,5 +1,5 @@
 # PasswordManagerAdvanced
-A more advanced version of the beginner password manager
+A more advanced version of the beginner password manager.
 The project demonstrates how to build a basic password management system using C++ while applying core programming concepts such as file handling, data structures, object-oriented design, and user input validation. It serves as a practical learning project for managing account credentials and implementing CRUD (Create, Read, Update, Delete) operations.
 This project is a console-based Password Manager written in C++ that allows users to securely organize login credentials for multiple accounts under a master account.
  - Main Features
@@ -31,12 +31,4 @@ This project is a console-based Password Manager written in C++ that allows user
         - Saved account passwords
         - Account names
 
-Object-Oriented Programming (classes and methods)
-Structures (struct User)
-File Input/Output (ifstream, ofstream)
-Vectors for dynamic data storage
-Operator overloading (operator<<)
-Regular expressions (regex)
-Input validation
-String manipulation
-Menu-driven program design
+Object-Oriented Programming (classes and methods), Structures (struct User), File Input/Output (ifstream, ofstream), Data Structures (vectors), Operator overloading, Regular expressions (regex), Input validation, String manipulation, Menu-driven program design
