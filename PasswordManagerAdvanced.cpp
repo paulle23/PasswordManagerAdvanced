@@ -10,7 +10,7 @@ struct User{
     string user, password, account;
 };
 //output file stream to display all of the users
-ostream &operator<<(ostream &out, User &Data){
+ostream &operator<<(ostream &out, const User &Data){
     out << "-----------------------" << endl;
     out << "Account: " << Data.account << endl;
     out << "Username: " << Data.user << endl;
@@ -74,7 +74,7 @@ class PasswordManager{
         void displayUsers();
         void searchUser();
         void logout();
-        void passwordCheck(const string);
+        void passwordCheck(const string&);
         void LoginMainMenu();
         void registerUser();
         void login();
@@ -96,6 +96,7 @@ void PasswordManager::saveToFile(){//save the login credentials to the file
     }
 }
 void PasswordManager::loadFromFile(){//read from the file and get the user credentials
+    listOfUsers.clear();//clear so that it does not duplicate users if not logged out
     ifstream file(LoginUser + ".txt");//open the file for reading
     if (file.is_open()){
         getline(file, LoginUser);//get login user and password, and for the profile get all of the sub profiles
@@ -113,18 +114,21 @@ void PasswordManager::loadFromFile(){//read from the file and get the user crede
 }
 void PasswordManager::addUser(){//add a new user once logged in, can add email account or non-email account but email has to be valid format
     User newUser;
-    cout << "Adding new user." << endl;
+    cout << "Enter account name: ";
+    getline(cin, newUser.account);
     cout << "Enter username: ";
     getline(cin, newUser.user);
     cout << "Enter password: ";
     getline(cin, newUser.password);
-    cout << "Enter account name: ";
-    getline(cin, newUser.account);
-    passwordCheck(newUser.password);//check the password strength of the new user
+    //passwordCheck(newUser.password);//check the password strength of the new user
+    while (passwordStrengthChecker(newUser.password) == "Weak") {//if the password is weak, ask for a new password
+        cout << "Password too weak. Enter again: ";
+        getline(cin, newUser.password);
+    }
     for (int x = 0; x < newUser.account.size(); x++){
         newUser.account[x] = tolower(newUser.account[x]);//convert account name to lower case to check if gmail or email exists
     }
-    if (newUser.account == "gmail" || newUser.account == "email"){//if it is an email account, then the username has to be a valid email format
+    if (newUser.account == "gmail" || newUser.account == "email" || newUser.account == "yahoo"){//if it is an email account, then the username has to be a valid email format
         if (validEmail(newUser.user)){//check if the format of the email is valid
             listOfUsers.push_back(newUser);//put the user onto the vector array 
             cout << "User added." << endl;
@@ -139,18 +143,19 @@ void PasswordManager::addUser(){//add a new user once logged in, can add email a
 }
 void PasswordManager::deleteUser(){//delete a user from a logged in account
     string userName;
-    bool found = true;
+    bool found = false;
     cout << "Deleting a user from the account." << endl;
     cout << "Enter username: ";
     getline(cin, userName);
     for (auto it = listOfUsers.begin(); it != listOfUsers.end(); ++it){
         if (it->user == userName){
             listOfUsers.erase(it);
-            found = false;
+            found = true;
             cout << "User deleted successfully!" << endl;
+            return;//after deletion, stop the search
         }
     }
-    if (found){//if the boolean value does not change, that means the user was not found
+    if (!found){//if the boolean value does not change, that means the user was not found
         cout << "User does not exist." << endl;
     }
 }
@@ -159,16 +164,16 @@ void PasswordManager::updateUser(){//update an account after logged in
     cout << "Updating a user..." << endl;
     cout << "Enter username: ";
     getline(cin, userName);
-    bool found = true;
+    bool found = false;
     for (auto &user : listOfUsers){//reference to get direct access to memory
         if (user.user == userName){//if the user is found, then update it
-            found = false;
+            found = true;
             cout << "Enter new password : ";
             getline(cin, user.password);
             cout << "User updated successfully!" << endl;
         }
     }
-    if (found){//if boolean value does not change, then the user does not exist
+    if (!found){//if boolean value does not change, then the user does not exist
         cout << "User does not exist." << endl;
     }
 }
@@ -185,17 +190,17 @@ void PasswordManager::displayUsers(){//display all of the usernames and password
 }
 void PasswordManager::searchUser(){//search for a user once logged in 
     string userName;
-    bool found = true;
+    bool found = false;
     cout << "Searching for user." << endl;
     cout << "Enter username: ";
     getline(cin, userName);
     for (auto &users : listOfUsers){//go through the vector array
         if (users.user == userName){
-            found = false;
+            found = true;
             cout << users;//use output file stream
         }
     }
-    if (found){
+    if (!found){
         cout << "User does not exist." << endl;
     }
 }
@@ -207,7 +212,7 @@ void PasswordManager::logout(){//when logging out, set variables to empty
     listOfUsers.clear();//clear the vector when logging out
     cout << "Logged out." << endl;
 }
-void PasswordManager::passwordCheck(const string password){//checks the strength of the password
+void PasswordManager::passwordCheck(const string& password){//checks the strength of the password
     string strength = passwordStrengthChecker(password);
     cout << "Password strength: " << strength << endl;//get the strength of the password from string passwordStrengthChecker
     if(!any_of(password.begin(), password.end(), ::isupper)){//any_of checks if at least one element in range satifies condition
@@ -225,7 +230,7 @@ void PasswordManager::passwordCheck(const string password){//checks the strength
 void PasswordManager::LoginMainMenu(){//Initial main menu to log in a user
     int choice;
     do{
-        cout << "Password Manager" << endl;
+        cout << "Password Manager." << endl;
         cout << "1. Register" << endl;
         cout << "2. Login" << endl;
         cout << "3. Exit" << endl;
@@ -298,6 +303,7 @@ void PasswordManager::login(){//Login the user
 void PasswordManager::mainMenu(){
     int choice;//choice for what the user wants to do
     do{
+        cout << "---------------------------" << endl;
         cout << "Password Manager Main Menu." << endl;
         cout << "1. Add User" << endl;
         cout << "2. Delete User" << endl;
